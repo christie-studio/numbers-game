@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>數字好好玩 🎵</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #FFF8F0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, #FFE4B5 0%, transparent 40%),
+      radial-gradient(circle at 85% 80%, #FFD1DC 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, #E0F0FF 0%, transparent 60%);
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 500px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #FF6B6B;
+    text-shadow: 3px 3px 0 #FFD93D;
+    letter-spacing: 4px;
+  }
+
+  /* ── MENU SCREEN ── */
+  #menuScreen {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .menu-hint {
+    font-size: 1.1rem;
+    color: #888;
+    letter-spacing: 2px;
+  }
+
+  .menu-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .menu-btn {
+    width: 100%;
+    padding: 22px 16px;
+    border: none;
+    border-radius: 24px;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    transition: transform 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    letter-spacing: 4px;
+  }
+  .menu-btn:active {
+    transform: scale(0.96);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.10);
+  }
+  .menu-btn.btn-a { background: linear-gradient(135deg, #FF6B6B, #FF8E53); }
+  .menu-btn.btn-b { background: linear-gradient(135deg, #4D96FF, #845EF7); }
+  .menu-btn.btn-c { background: linear-gradient(135deg, #6BCB77, #38B2AC); }
+
+  .menu-btn .btn-sub {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 400;
+    opacity: 0.85;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* ── GAME SCREEN ── */
+  #gameScreen {
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .back-btn {
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border-radius: 50px;
+    padding: 8px 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .score-value {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #FF6B6B;
+    min-width: 28px;
+    text-align: center;
+  }
+  .progress-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #EEE;
+    transition: background 0.3s;
+  }
+  .dot.correct { background: #6BCB77; }
+  .dot.wrong   { background: #FF6B6B; }
+
+  .question-card {
+    background: white;
+    border-radius: 28px;
+    padding: 28px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .listen-hint {
+    font-size: 0.9rem;
+    color: #CCC;
+    letter-spacing: 3px;
+  }
+
+  .play-btn {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+    color: white;
+    font-size: 3.2rem;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(255,107,107,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .play-btn:active {
+    transform: scale(0.93);
+    box-shadow: 0 4px 12px rgba(255,107,107,0.3);
+  }
+  .play-btn.playing {
+    animation: pulse 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes pulse {
+    from { transform: scale(1); }
+    to   { transform: scale(1.08); }
+  }
+
+  .replay-btn {
+    background: none;
+    border: 2px solid #DDD;
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    color: #AAA;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .replay-btn:active { background: #F5F5F5; }
+
+  .answers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    width: 100%;
+  }
+
+  .answer-btn {
+    aspect-ratio: 1;
+    border: 4px solid #EEE;
+    border-radius: 24px;
+    background: white;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #333;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .answer-btn:active { transform: scale(0.92); }
+  .answer-btn.correct-flash {
+    background: #D4FFDE;
+    border-color: #6BCB77;
+    animation: correctBounce 0.5s ease;
+  }
+  .answer-btn.wrong-flash {
+    background: #FFE0E0;
+    border-color: #FF6B6B;
+    animation: wrongShake 0.4s ease;
+  }
+  @keyframes correctBounce {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.18); }
+    70%  { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+  @keyframes wrongShake {
+    0%,100% { transform: translateX(0); }
+    25%     { transform: translateX(-8px); }
+    75%     { transform: translateX(8px); }
+  }
+
+  /* ── RESULT OVERLAY ── */
+  .result-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+  }
+  .result-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .result-bg {
+    position: absolute;
+    inset: 0;
+  }
+  .result-emoji {
+    font-size: 8rem;
+    position: relative;
+    animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15));
+  }
+  @keyframes popIn {
+    from { transform: scale(0) rotate(-20deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .result-stars {
+    font-size: 2.5rem;
+    position: relative;
+    letter-spacing: 8px;
+  }
+  .result-score {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #555;
+    position: relative;
+  }
+  .result-btns {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+  .play-again-btn {
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 16px 44px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(255,107,107,0.35);
+    transition: transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    letter-spacing: 2px;
+  }
+  .play-again-btn:active { transform: scale(0.95); }
+  .back-to-menu-btn {
+    background: none;
+    border: 2px solid #CCC;
+    border-radius: 50px;
+    padding: 10px 28px;
+    font-size: 1rem;
+    color: #888;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── CONFETTI ── */
+  .confetti-wrap {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">數字好好玩 🎵</div>
+
+  <!-- MENU -->
+  <div id="menuScreen">
+    <div class="menu-hint">選一個來練習</div>
+    <div class="menu-btns">
+      <button class="menu-btn btn-a" onclick="startGame('a')">
+        1 ～ 10
+        <span class="btn-sub">一 到 十</span>
+      </button>
+      <button class="menu-btn btn-b" onclick="startGame('b')">
+        11 ～ 20
+        <span class="btn-sub">十一 到 二十</span>
+      </button>
+      <button class="menu-btn btn-c" onclick="startGame('c')">
+        整十數
+        <span class="btn-sub">10 · 20 · 30 · … · 100</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameScreen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goMenu()">←</button>
+      <div class="score-bar">
+        <span>⭐</span>
+        <span class="score-value" id="scoreVal">0</span>
+        <div class="progress-dots" id="progressDots"></div>
+      </div>
+      <div style="width:44px"></div>
+    </div>
+
+    <div class="question-card">
+      <div class="listen-hint" id="listenHint">聽聽看是哪個數字？</div>
+      <button class="play-btn" id="playBtn" onclick="playQuestion()">🔊</button>
+      <button class="replay-btn" onclick="playQuestion()">再聽一次 🔁</button>
+    </div>
+
+    <div class="answers" id="answersGrid"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-bg" id="resultBg"></div>
+  <div class="result-emoji" id="resultEmoji"></div>
+  <div class="result-stars" id="resultStars"></div>
+  <div class="result-score" id="resultScore"></div>
+  <div class="result-btns">
+    <button class="play-again-btn" onclick="replayGame()">再玩一次！</button>
+    <button class="back-to-menu-btn" onclick="goMenu()">換一個練習</button>
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<script>
+// ── Question banks ──
+const BANKS = {
+  a: [1,2,3,4,5,6,7,8,9,10],
+  b: [11,12,13,14,15,16,17,18,19,20],
+  c: [10,20,30,40,50,60,70,80,90,100]
+};
+
+const TOTAL_Q = 5;
+let currentMode = 'a';
+let currentAnswer = null;
+let answered = false;
+let score = 0;
+let questionIndex = 0;
+let queue = [];
+let currentAudio = null;
+
+// ── Screen switching ──
+function goMenu() {
+  document.getElementById('resultOverlay').classList.remove('show');
+  document.getElementById('confettiWrap').innerHTML = '';
+  document.getElementById('menuScreen').style.display = 'flex';
+  document.getElementById('gameScreen').style.display = 'none';
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+}
+
+function startGame(mode) {
+  currentMode = mode;
+  score = 0;
+  questionIndex = 0;
+  queue = shuffle([...BANKS[mode]]).slice(0, TOTAL_Q);
+
+  document.getElementById('menuScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'flex';
+  document.getElementById('resultOverlay').classList.remove('show');
+  document.getElementById('confettiWrap').innerHTML = '';
+  document.getElementById('scoreVal').textContent = '0';
+
+  buildDots();
+  nextQuestion();
+}
+
+function replayGame() {
+  startGame(currentMode);
+}
+
+// ── Audio ──
+function playQuestion() {
+  if (!currentAnswer) return;
+  if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+
+  const audio = new Audio(`audio/${currentAnswer}.mp3`);
+  currentAudio = audio;
+  const btn = document.getElementById('playBtn');
+
+  audio.onerror = () => speakTTS(currentAnswer);
+  audio.onplay  = () => btn.classList.add('playing');
+  audio.onended = () => btn.classList.remove('playing');
+  audio.onpause = () => btn.classList.remove('playing');
+  audio.play().catch(() => speakTTS(currentAnswer));
+}
+
+function speakTTS(num) {
+  if (!window.speechSynthesis) return;
+  const btn = document.getElementById('playBtn');
+  btn.classList.add('playing');
+  const u = new SpeechSynthesisUtterance(String(num));
+  u.lang = 'zh-TW';
+  u.rate = 0.85;
+  u.onend = () => btn.classList.remove('playing');
+  speechSynthesis.speak(u);
+}
+
+// ── Game logic ──
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function buildDots() {
+  const wrap = document.getElementById('progressDots');
+  wrap.innerHTML = '';
+  for (let i = 0; i < TOTAL_Q; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = `dot-${i}`;
+    wrap.appendChild(d);
+  }
+}
+
+function nextQuestion() {
+  if (questionIndex >= TOTAL_Q) { showResult(); return; }
+
+  answered = false;
+  currentAnswer = queue[questionIndex];
+
+  // Distractors from the same bank only
+  const pool = BANKS[currentMode].filter(n => n !== currentAnswer);
+  const distractors = shuffle(pool).slice(0, 2);
+  const options = shuffle([currentAnswer, ...distractors]);
+
+  const grid = document.getElementById('answersGrid');
+  grid.innerHTML = '';
+  options.forEach(num => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = num;
+    btn.onclick = () => handleAnswer(num, btn);
+    grid.appendChild(btn);
+  });
+
+  setTimeout(playQuestion, 400);
+}
+
+function handleAnswer(chosen, btn) {
+  if (answered) return;
+  answered = true;
+
+  const isCorrect = chosen === currentAnswer;
+  const dot = document.getElementById(`dot-${questionIndex}`);
+
+  if (isCorrect) {
+    score++;
+    btn.classList.add('correct-flash');
+    dot.classList.add('correct');
+    document.getElementById('scoreVal').textContent = score;
+    playFeedbackSound(true);
+  } else {
+    btn.classList.add('wrong-flash');
+    dot.classList.add('wrong');
+    playFeedbackSound(false);
+    Array.from(document.getElementById('answersGrid').children).forEach(b => {
+      if (parseInt(b.textContent) === currentAnswer) {
+        setTimeout(() => b.classList.add('correct-flash'), 200);
+      }
+    });
+  }
+
+  questionIndex++;
+  setTimeout(nextQuestion, isCorrect ? 900 : 1400);
+}
+
+function playFeedbackSound(correct) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (correct) {
+      [523, 659, 784].forEach((freq, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.value = freq;
+        o.type = 'sine';
+        g.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.1);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.3);
+        o.start(ctx.currentTime + i * 0.1);
+        o.stop(ctx.currentTime + i * 0.1 + 0.3);
+      });
+    } else {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 220;
+      o.type = 'sawtooth';
+      g.gain.setValueAtTime(0.2, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime + 0.4);
+    }
+  } catch(e) {}
+}
+
+// ── Result ──
+const RESULT_LEVELS = [
+  { min: 5, emoji: '🦁', stars: '⭐⭐⭐⭐⭐', bg: '#FFFDE7' },
+  { min: 4, emoji: '🐰', stars: '⭐⭐⭐⭐',   bg: '#FFF3E0' },
+  { min: 3, emoji: '🐻', stars: '⭐⭐⭐',     bg: '#E3F2FD' },
+  { min: 0, emoji: '🐱', stars: '⭐⭐',       bg: '#FCE4EC' },
+];
+
+function showResult() {
+  const level = RESULT_LEVELS.find(l => score >= l.min);
+  document.getElementById('resultEmoji').textContent = level.emoji;
+  document.getElementById('resultStars').textContent = level.stars;
+  document.getElementById('resultScore').textContent = `答對 ${score} / ${TOTAL_Q} 題`;
+  document.getElementById('resultBg').style.background = level.bg + 'EE';
+  document.getElementById('resultOverlay').classList.add('show');
+  if (score >= 4) spawnConfetti();
+}
+
+function spawnConfetti() {
+  const wrap = document.getElementById('confettiWrap');
+  const colors = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF922B','#CC5DE8'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    el.style.animationDelay = (Math.random() * 0.8) + 's';
+    el.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+    wrap.appendChild(el);
+  }
+  setTimeout(() => { wrap.innerHTML = ''; }, 4000);
+}
+</script>
+</body>
+</html>
